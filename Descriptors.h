@@ -1,7 +1,7 @@
 #pragma once
 #include <avr/pgmspace.h>
 #include <LUFA/Drivers/USB/USB.h>
-#include <LUFA/Drivers/USB/Class/Common/HIDClassCommon.h>
+#include <LUFA/Drivers/USB/Class/Common/HIDReportData.h>   // HID_RI_* makroları
 
 extern const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[];
 
