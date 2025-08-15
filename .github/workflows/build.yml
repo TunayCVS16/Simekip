@@ -31,11 +31,20 @@ jobs:
           echo "== lufa/LUFA sample ==" && ls -la lufa/LUFA/Drivers/USB | head -n 20
           echo "== Makefile LUFA_PATH ==" && grep -n "LUFA_PATH" Makefile || true
 
-      - name: Build (verbose)
+      - name: Build (capture log)
+        shell: bash
         run: |
-          make clean
-          make V=1
-          ls -la
+          set -o pipefail
+          make clean || true
+          ( make V=1 ) 2>&1 | tee build.log
+          ls -la || true
+
+      - name: Upload build log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build.log
 
       - name: Upload HEX (if exists)
         if: ${{ hashFiles('Simekip.hex') != '' }}
