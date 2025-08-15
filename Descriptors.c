@@ -1,7 +1,6 @@
 #include "Descriptors.h"
-#include <LUFA/Drivers/USB/USB.h>
 
-/* 64 buttons + 2 hat + 8 axes */
+/* 64 buton + 2 hat (2x4 bit) + 8 eksen (16 bit) */
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] = {
   HID_USAGE_PAGE(USAGE_PAGE_GENERIC_DESKTOP),
   HID_USAGE(USAGE_JOYSTICK),
