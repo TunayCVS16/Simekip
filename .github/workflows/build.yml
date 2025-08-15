@@ -1,0 +1,34 @@
+name: build-simekip-hex
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install AVR toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-avr binutils-avr avr-libc make wget unzip
+
+      - name: Fetch LUFA-120730 (minimal)
+        run: |
+          mkdir -p lufa
+          wget -q https://github.com/abcminiuser/lufa/archive/refs/tags/120730.zip -O /tmp/lufa.zip
+          unzip -q /tmp/lufa.zip -d /tmp
+          cp -r /tmp/lufa-120730/LUFA ./lufa/
+
+      - name: Build
+        run: |
+          make clean
+          make
+
+      - name: Upload HEX
+        uses: actions/upload-artifact@v4
+        with:
+          name: Simekip
+          path: |
+            Simekip.hex
+            Simekip.elf
