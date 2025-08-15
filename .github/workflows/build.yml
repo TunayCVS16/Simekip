@@ -8,24 +8,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install AVR toolchain
+      - name: Toolchain
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-avr binutils-avr avr-libc make wget unzip
+          avr-gcc --version
 
-      - name: Fetch LUFA-120730 (minimal)
+      - name: Fetch LUFA-120730
         run: |
+          set -e
           mkdir -p lufa
           wget -q https://github.com/abcminiuser/lufa/archive/refs/tags/120730.zip -O /tmp/lufa.zip
           unzip -q /tmp/lufa.zip -d /tmp
           cp -r /tmp/lufa-120730/LUFA ./lufa/
+          test -f lufa/LUFA/Drivers/USB/USB.h
 
-      - name: Build
+      - name: Show tree before build
         run: |
-          make clean
-          make
+          echo "== ROOT =="
+          ls -la
+          echo "== lufa/LUFA sample =="
+          ls -la lufa/LUFA/Drivers/USB | head -n 20
 
-      - name: Upload HEX
+      - name: Build (verbose)
+        run: |
+          set -e
+          echo "LUFA_PATH should be ./lufa ; Makefile check:"
+          grep -n "LUFA_PATH" Makefile || true
+          make clean
+          # V=1 ile komut satırlarını da göster
+          make V=1 || ( echo "Make failed"; exit 2 )
+          ls -la
+
+      - name: Upload HEX (if exists)
+        if: ${{ hashFiles('Simekip.hex') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: Simekip
