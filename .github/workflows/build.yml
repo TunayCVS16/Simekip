@@ -1,44 +1,11 @@
-name: build-simekip-hex
-on: [push, workflow_dispatch]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install AVR toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-avr binutils-avr avr-libc make git
-          avr-gcc --version
-
       - name: Fetch LUFA (via git)
         run: |
-          rm -rf lufa
-          git clone --depth=1 --branch 120730 https://github.com/abcminiuser/lufa.git /tmp/lufa
+          set -e
+          rm -rf lufa /tmp/lufa
+          git clone --depth 1 https://github.com/abcminiuser/lufa.git /tmp/lufa
+          git -C /tmp/lufa fetch --tags --depth 1
+          # Önce düz etiket adıyla dene, olmazsa tags/120730 ile dene, o da olmazsa default branch ile devam et
+          git -C /tmp/lufa checkout -q 120730 || git -C /tmp/lufa checkout -q tags/120730 || echo "Using default branch"
           mkdir -p lufa
           cp -r /tmp/lufa/LUFA ./lufa/
           test -f lufa/LUFA/Drivers/USB/USB.h && echo "LUFA OK"
-
-      - name: Show tree before build
-        run: |
-          echo "== ROOT ==" && ls -la
-          echo "== lufa/LUFA sample ==" && ls -la lufa/LUFA/Drivers/USB | head -n 20
-          echo "== Makefile LUFA_PATH ==" && grep -n "LUFA_PATH" Makefile || true
-
-      - name: Build (verbose)
-        run: |
-          make clean
-          make V=1
-          ls -la
-
-      - name: Upload HEX (if exists)
-        if: ${{ hashFiles('Simekip.hex') != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Simekip
-          path: |
-            Simekip.hex
-            Simekip.elf
