@@ -54,29 +54,6 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
   return false;
 }
 
-/* Descriptor router + stringler */
-uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint8_t wIndex,
-                                    const void** const DescriptorAddress)
-{
-  const uint8_t DescriptorType   = (wValue >> 8);
-  const uint8_t DescriptorNumber = (wValue & 0xFF);
-
-  static const USB_Descriptor_Device_t PROGMEM DeviceDescriptor = {
-    .Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
-    .USBSpecification       = VERSION_BCD(2,0,0),
-    .Class                  = USB_CSCP_NoDeviceClass,
-    .SubClass               = USB_CSCP_NoDeviceSubclass,
-    .Protocol               = USB_CSCP_NoDeviceProtocol,
-    .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
-    .VendorID               = 0x03EB,
-    .ProductID              = 0x2043,
-    .ReleaseNumber          = VERSION_BCD(1,0,0),
-    .ManufacturerStrIndex   = 1,
-    .ProductStrIndex        = 2,
-    .SerialNumStrIndex      = 3,
-    .NumberOfConfigurations = 1
-  };
-
   typedef struct {
     USB_Descriptor_Configuration_Header_t Config;
     USB_Descriptor_Interface_t            HID_Intf;
